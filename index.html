@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com https://*.googleapis.com https://*.google.com; img-src 'self' data:; frame-ancestors 'none'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com https://*.googleapis.com https://*.google.com; img-src 'self' data: https://blogger.googleusercontent.com; frame-ancestors 'none'"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
 <title>Penelusuran Minat &amp; Bakat Siswa — SMK Ciledug Al-Musaddadiyah</title>
 <meta name="description" content="Sistem asesmen dan pemetaan kompetensi siswa SMK Ciledug Al-Musaddadiyah — mendukung perencanaan pengembangan talenta secara terstruktur dan berbasis data."/>
@@ -151,15 +151,22 @@ img,svg{display:block}
 }
 .btn-ghost:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
 
-.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-width:270px}
+/* grid-template-columns memakai auto-fit agar jumlah kartu statistik bisa
+   bertambah (mis. dari 3 menjadi 7) tanpa perlu mengubah/menghitung ulang
+   angka kolom di setiap breakpoint — sebelumnya kolom di-hardcode(3) dan
+   ada aturan khusus "last-child span" yang berasumsi jumlah kartu selalu
+   ganjil; ini rapuh begitu jumlah kartu berubah, jadi diganti dengan
+   pendekatan yang mengikuti jumlah kartu apa adanya. */
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:10px;width:100%}
 .hero-stat{
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
-  border-radius:14px;padding:18px 14px;text-align:center;
+  border-radius:14px;padding:16px 10px;text-align:center;
   backdrop-filter:blur(4px);transition:background var(--transition);
 }
 .hero-stat:hover{background:rgba(255,255,255,.13)}
-.hero-stat .num{font-family:'Plus Jakarta Sans',sans-serif;font-size:27px;font-weight:900;color:var(--gold-light);line-height:1;min-height:27px}
-.hero-stat .lbl{font-size:10.5px;color:rgba(255,255,255,.6);margin-top:5px}
+.hero-stat .num{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:900;color:var(--gold-light);line-height:1;min-height:24px}
+.hero-stat .lbl{font-size:10px;color:rgba(255,255,255,.6);margin-top:5px}
+.hero-stats-note{grid-column:1/-1;font-size:9.5px;color:rgba(255,255,255,.5);text-align:center;line-height:1.5;margin-top:2px}
 
 /* ── SECTION BASE ── */
 .section{padding:68px 0}
@@ -259,6 +266,11 @@ img,svg{display:block}
 .legend-pct{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--text-dark);margin-left:auto;font-size:12.5px}
 .legend-bar-track{height:4px;border-radius:3px;background:rgba(30,136,229,.08);overflow:hidden;margin-left:17px}
 .legend-bar-fill{height:100%;border-radius:3px;width:0%;transition:width 1s cubic-bezier(.22,1,.36,1)}
+
+/* ── RADAR / JARING LABA-LABA ── */
+.radar-grid-ring{fill:none;stroke:#e3f2fd;stroke-width:1}
+.radar-spoke{stroke:#e3f2fd;stroke-width:1}
+#radar-polygon{transition:opacity .4s ease}
 
 /* ── PETA BAKAT CARD ── */
 .map-card{background:var(--cream);border-radius:var(--radius);padding:24px;border:1px solid rgba(30,136,229,.1)}
@@ -663,7 +675,7 @@ img,svg{display:block}
 @media(max-width:1024px){
   .infographic-grid{grid-template-columns:repeat(2,1fr)}
   .hero-inner{grid-template-columns:1fr}
-  .hero-stats{grid-template-columns:repeat(3,1fr);min-width:0;width:100%;max-width:400px}
+  .hero-stats{max-width:520px}
   #main-layout{grid-template-columns:1fr}
   .sidebar{position:static}
 }
@@ -681,8 +693,9 @@ img,svg{display:block}
   #app-footer{padding-bottom:88px}
   #toast{bottom:86px}
   .infographic-grid{grid-template-columns:1fr 1fr}
-  .hero-stats{grid-template-columns:1fr 1fr;max-width:100%}
-  .hero-stats .hero-stat:last-child{grid-column:1/-1}
+  .hero-stats{grid-template-columns:repeat(3,1fr);max-width:100%;gap:8px}
+  .hero-stats .hero-stat{padding:12px 6px}
+  .hero-stats .num{font-size:19px}
   .cta-btns{flex-direction:column;align-items:center}
   .hero-btns{flex-direction:column;gap:8px}
   #dashboard-hero{padding:76px 16px 44px}
@@ -773,7 +786,7 @@ img,svg{display:block}
 <nav id="app-nav">
   <div class="nav-inner">
     <a class="nav-brand" data-page="dashboard" href="#beranda" role="button" aria-label="Beranda Penelusuran Bakat">
-      <div class="nav-brand-icon">🧭</div>
+      <div class="nav-brand-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiD-8YPFS6i86EyZZNDUhwuam5ro_mtc9So2muvB7EDWz1Zp6rarLubvVS3vfVVoto_S6SaHlIPPnmNaddUugGUztWkJYhDwwT8CU1BcUuq9TNyxnHKa6B44iDBx6LjR1-z3r7_C34jviaWeOYgk4bNJHsziPV4KR5mQjY69HV--R3STD4xp-b46x_HeR4/s160/An8Em6pLCtVUNFZTK-rgdQG9pKiDxE1AR7m_1QO_5slD3C5qFXYq7S9suI1ztpViB_aUnbOGE2-Y71AU9SF3GjQzZ09xbw5aat-JT_7ptJ4VcfdGeJ73DWbHD9IDtVHa_16MjCj09HJ4eGBvZMo-removebg-preview.png" alt="Logo SMK Ciledug Al-Musaddadiyah" width="34" height="34" style="width:100%;height:100%;object-fit:contain;background:#fff;border-radius:9px" onerror="this.parentElement.textContent='🧭';this.parentElement.style.background='linear-gradient(135deg,var(--blue-bright),var(--blue-light))'"/></div>
       <div class="nav-brand-text">
         <span>Peta Bakat Siswa</span>
         <span>SMK CALM Garut</span>
@@ -833,13 +846,26 @@ img,svg{display:block}
           <div class="lbl">Siswa Terdata</div>
         </div>
         <div class="hero-stat">
-          <div class="num counter-num" data-target="0" data-suffix="%" data-id="terpetakan"><span class="skeleton" aria-hidden="true"></span></div>
-          <div class="lbl">Bakat Terpetakan</div>
+          <div class="num counter-num" data-target="0" data-suffix="" data-id="jurusan"><span class="skeleton" aria-hidden="true"></span></div>
+          <div class="lbl">Jurusan Terlibat</div>
         </div>
         <div class="hero-stat">
           <div class="num counter-num" data-target="0" data-suffix="" data-id="kelas"><span class="skeleton" aria-hidden="true"></span></div>
           <div class="lbl">Kelas Terlibat</div>
         </div>
+        <div class="hero-stat">
+          <div class="num counter-num" data-target="0" data-suffix="" data-id="kelasX"><span class="skeleton" aria-hidden="true"></span></div>
+          <div class="lbl">Siswa Kelas X</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num counter-num" data-target="0" data-suffix="" data-id="kelasXI"><span class="skeleton" aria-hidden="true"></span></div>
+          <div class="lbl">Siswa Kelas XI</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num counter-num" data-target="0" data-suffix="" data-id="kelasXII"><span class="skeleton" aria-hidden="true"></span></div>
+          <div class="lbl">Siswa Kelas XII</div>
+        </div>
+        <div class="hero-stats-note" id="kelas-breakdown-note" style="display:none">📊 Rincian per tingkat kelas akan tampil otomatis setelah data ini disediakan oleh sistem (field <code>kelasBreakdown</code>).</div>
       </div>
     </div>
   </header>
@@ -905,13 +931,13 @@ img,svg{display:block}
         </article>
       </div>
 
-      <div class="charts-row reveal">
-        <div class="chart-box">
-          <h3>Sebaran Minat per Program Keahlian</h3>
-          <div id="bar-chart-jurusan" class="bar-chart">
-            <div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">⏳ Memuat data program keahlian...</div>
-          </div>
+      <div class="chart-box reveal" style="margin-bottom:20px">
+        <h3>Sebaran Minat per Program Keahlian</h3>
+        <div id="bar-chart-jurusan" class="bar-chart">
+          <div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">⏳ Memuat data program keahlian...</div>
         </div>
+      </div>
+      <div class="charts-row reveal">
         <div class="chart-box">
           <h3>Kategori Bakat Dominan</h3>
           <div class="donut-wrap">
@@ -943,6 +969,63 @@ img,svg{display:block}
               </div>
             </div>
           </div>
+        </div>
+        <div class="chart-box">
+          <h3>Profil Kompetensi <span style="font-weight:600;color:var(--text-muted);font-size:11px">(Jaring Laba-laba · Kode Holland)</span></h3>
+          <div class="donut-wrap">
+            <svg width="152" height="152" viewBox="0 0 200 200" style="flex-shrink:0" role="img" aria-label="Diagram jaring laba-laba profil kompetensi RIASEC (Kode Holland) siswa">
+              <polygon class="radar-grid-ring" points="100,40 151.96,70 151.96,130 100,160 48.04,130 48.04,70"/>
+              <polygon class="radar-grid-ring" points="100,55 138.97,77.5 138.97,122.5 100,145 61.03,122.5 61.03,77.5"/>
+              <polygon class="radar-grid-ring" points="100,70 125.98,85 125.98,115 100,130 74.02,115 74.02,85"/>
+              <polygon class="radar-grid-ring" points="100,85 112.99,92.5 112.99,107.5 100,115 87.01,107.5 87.01,92.5"/>
+              <line class="radar-spoke" x1="100" y1="100" x2="100" y2="40"/>
+              <line class="radar-spoke" x1="100" y1="100" x2="151.96" y2="70"/>
+              <line class="radar-spoke" x1="100" y1="100" x2="151.96" y2="130"/>
+              <line class="radar-spoke" x1="100" y1="100" x2="100" y2="160"/>
+              <line class="radar-spoke" x1="100" y1="100" x2="48.04" y2="130"/>
+              <line class="radar-spoke" x1="100" y1="100" x2="48.04" y2="70"/>
+              <polygon id="radar-polygon" points="100,100 100,100 100,100 100,100 100,100 100,100" fill="rgba(21,101,192,.16)" stroke="var(--blue-bright)" stroke-width="2" stroke-linejoin="round"/>
+              <circle id="radar-dot-r" cx="100" cy="100" r="3.5" fill="#1e88e5"/>
+              <circle id="radar-dot-i" cx="100" cy="100" r="3.5" fill="#0097a7"/>
+              <circle id="radar-dot-a" cx="100" cy="100" r="3.5" fill="#7b1fa2"/>
+              <circle id="radar-dot-s" cx="100" cy="100" r="3.5" fill="var(--green)"/>
+              <circle id="radar-dot-e" cx="100" cy="100" r="3.5" fill="#e65100"/>
+              <circle id="radar-dot-c" cx="100" cy="100" r="3.5" fill="#ad1457"/>
+              <text x="100" y="24" text-anchor="middle" font-size="13">🔧</text>
+              <text x="168" y="63" text-anchor="middle" font-size="13">🔍</text>
+              <text x="168" y="142" text-anchor="middle" font-size="13">🎨</text>
+              <text x="100" y="180" text-anchor="middle" font-size="13">🗣️</text>
+              <text x="32" y="142" text-anchor="middle" font-size="13">🚀</text>
+              <text x="32" y="63" text-anchor="middle" font-size="13">📋</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <div class="legend-item-top"><div class="legend-dot" style="background:#1e88e5"></div><span class="legend-label">R · Realistik/Teknikal</span><span id="radarlegend-r" class="legend-pct">–</span></div>
+                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-r" style="background:#1e88e5"></div></div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-item-top"><div class="legend-dot" style="background:#0097a7"></div><span class="legend-label">I · Investigatif/Analitis</span><span id="radarlegend-i" class="legend-pct">–</span></div>
+                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-i" style="background:#0097a7"></div></div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-item-top"><div class="legend-dot" style="background:#7b1fa2"></div><span class="legend-label">A · Artistik/Kreatif</span><span id="radarlegend-a" class="legend-pct">–</span></div>
+                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-a" style="background:#7b1fa2"></div></div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-item-top"><div class="legend-dot" style="background:var(--green)"></div><span class="legend-label">S · Sosial/Komunikatif</span><span id="radarlegend-s" class="legend-pct">–</span></div>
+                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-s" style="background:var(--green)"></div></div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-item-top"><div class="legend-dot" style="background:#e65100"></div><span class="legend-label">E · Enterprising/Bisnis</span><span id="radarlegend-e" class="legend-pct">–</span></div>
+                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-e" style="background:#e65100"></div></div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-item-top"><div class="legend-dot" style="background:#ad1457"></div><span class="legend-label">C · Konvensional/Terorganisir</span><span id="radarlegend-c" class="legend-pct">–</span></div>
+                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-c" style="background:#ad1457"></div></div>
+              </div>
+            </div>
+          </div>
+          <div id="radar-estimate-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">⚠️ Data skor rata-rata per kategori R/I/A/S/E/C belum tersedia dari backend saat ini, jadi 6 sumbu di atas masih <strong>estimasi</strong> dari data klaster (Teknikal/Kreatif/Bisnis/Sosial gabungan). Grafik akan otomatis akurat begitu field <code>avgRiasec</code> tersedia dari backend.</div>
         </div>
       </div>
 
@@ -1185,7 +1268,7 @@ img,svg{display:block}
         </button>
         <div class="submit-info">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="var(--blue-bright)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5.5v.5"/></svg>
-          <span>Data Anda akan diproses melalui sistem manajemen talenta siswa SMK Ciledug Al-Musaddadiyah secara aman dan terintegrasi. Kolom <strong style="color:var(--red)">*</strong> wajib diisi.</span>
+          <span><strong>Data yang kamu isi hanya dapat diakses oleh Guru BK</strong> untuk keperluan pemetaan bakat &amp; konseling, dan tidak dibagikan ke pihak lain. Kolom <strong style="color:var(--red)">*</strong> wajib diisi.</span>
         </div>
       </div>
     </main>
@@ -1202,6 +1285,7 @@ img,svg{display:block}
     <a href="https://www.smkciledugalmusaddadiyah.sch.id" target="_blank" rel="noopener noreferrer">Website Utama</a> ·
     <a href="https://www.instagram.com/smkscalm_official/" target="_blank" rel="noopener noreferrer">Instagram</a>
   </p>
+  <p style="font-size:10.5px">Jl. Mayor Syamsu No.2, Jayaraga, Tarogong Kidul, Kab. Garut, Jawa Barat · Terakreditasi A (BAN-S/M)</p>
 </footer>
 
 <!-- SUCCESS OVERLAY -->
@@ -1227,7 +1311,7 @@ img,svg{display:block}
       <button class="btn-back-home" data-action="close-success">📊 Lihat Dashboard</button>
       <button class="btn-share" data-action="share-wa">📤 Bagikan ke WA</button>
     </div>
-    <p style="margin-top:16px;font-size:11.5px;color:rgba(255,255,255,.35)">Laporan lengkap beserta rekomendasi pengembangan akan disampaikan oleh Tim Bimbingan Konseling setelah proses verifikasi data.</p>
+    <p style="margin-top:16px;font-size:11.5px;color:rgba(255,255,255,.35)">Laporan lengkap beserta rekomendasi pengembangan akan disampaikan Tim Bimbingan Konseling kepada siswa dan orang tua/wali setelah proses verifikasi data.</p>
   </div>
 </div>
 
@@ -1266,7 +1350,6 @@ function normalizeJurusan(raw){
   if(!raw)return'Lainnya';
   return JURUSAN_MAP[raw.trim().toLowerCase()]||raw.trim();
 }
-
 /* ── ICON MAP: kategori bakat & area pengembangan ── */
 const BAKAT_ICONS={
   'realistik/teknikal':'🔧','investigatif/analitis':'🔍','artistik/kreatif':'🎨',
@@ -1799,6 +1882,52 @@ function clearCache(){try{localStorage.removeItem(CACHE_KEY);}catch(_){}}
    info-card/legend) selalu diutamakan; `d.terpetakan` hanya dipakai
    sebagai fallback terakhir saat memang tidak ada data kategori sama
    sekali (mis. data demo/fallback offline). ── */
+/* ── Jumlah jurusan yang sudah punya minimal 1 responden (angka absolut,
+   dipakai untuk hero-stat "Jurusan Terlibat"). ── */
+function countJurusanRepresented(d){
+  if(!d||!d.jurusan||typeof d.jurusan!=='object')return 0;
+  return Object.values(d.jurusan).filter(v=>(Number(v)||0)>0).length;
+}
+
+/* ── Rincian jumlah siswa per tingkat (Kelas X/XI/XII). Backend saat ini
+   (lihat APPS_SCRIPT_URL) hanya mengirim `kelas` sebagai angka tunggal
+   (jumlah kelas yang terlibat), belum berupa rincian per tingkat. Fungsi
+   ini SENGAJA tidak menerka-nerka pembagian itu dari angka lain (mis.
+   dibagi rata 3) karena akan terlihat presisi padahal sebenarnya
+   fabrikasi — bisa menyesatkan pengambil keputusan di sekolah. Jika
+   backend suatu saat mengirim field `kelasBreakdown:{X,XI,XII}`, datanya
+   otomatis tampil; jika belum ada, UI menampilkan status "belum
+   tersedia" secara transparan (lihat updateKelasBreakdownStats). ── */
+function getKelasBreakdown(d){
+  if(d&&d.kelasBreakdown&&typeof d.kelasBreakdown==='object'){
+    return{
+      real:true,
+      X:Number(d.kelasBreakdown.X)||0,
+      XI:Number(d.kelasBreakdown.XI)||0,
+      XII:Number(d.kelasBreakdown.XII)||0,
+    };
+  }
+  return{real:false,X:0,XI:0,XII:0};
+}
+function updateKelasBreakdownStats(d){
+  const bd=getKelasBreakdown(d);
+  const note=document.getElementById('kelas-breakdown-note');
+  ['X','XI','XII'].forEach(lvl=>{
+    const id='kelas'+lvl;
+    const el=document.querySelector(`[data-id="${id}"]`);
+    if(!el)return;
+    const sk=el.querySelector('.skeleton');
+    if(sk)sk.remove();
+    if(bd.real){
+      el.dataset.target=bd[lvl];el.dataset.suffix='';
+      animateCounter(el,bd[lvl],'');
+    } else {
+      el.textContent='–';
+    }
+  });
+  if(note)note.style.display=bd.real?'none':'block';
+}
+
 function computeTerpetakanPct(d){
   const _catKeys=['teknikal','kreatif','bisnis','sosial'];
   const _hasCatData=_catKeys.some(k=>typeof d[k]==='number'&&!isNaN(d[k])&&d[k]>0);
@@ -1861,7 +1990,8 @@ function renderData(d,source){
     d.jurusan=norm;
   }
   setHeroCounter('total',d.total||0,'');
-  setHeroCounter('terpetakan',computeTerpetakanPct(d),'%');
+  setHeroCounter('jurusan',countJurusanRepresented(d),'');
+  updateKelasBreakdownStats(d);
   setHeroCounter('kelas',d.kelas||0,'');
   setBigNum('teknikal',d.teknikal||0);
   setBigNum('kreatif',d.kreatif||0);
@@ -1874,7 +2004,7 @@ function renderData(d,source){
   } else {
     document.getElementById('bar-chart-jurusan').innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">Belum ada data jurusan.</div>';
   }
-  if(d.total>0)updateDonut(d);
+  if(d.total>0){updateDonut(d);updateRadarChart(d);}
   if((d.bakatMenonjol&&Object.keys(d.bakatMenonjol).length>0)||(d.areaPengembangan&&Object.keys(d.areaPengembangan).length>0)){
     updateBakatArea(d.bakatMenonjol||{},d.areaPengembangan||{});
   } else {
@@ -1943,13 +2073,19 @@ function showDataError(msg){
 }
 
 function loadFallbackData(){
-  setHeroCounter('total',842,'');setHeroCounter('terpetakan',78,'%');setHeroCounter('kelas',24,'');
+  const fallbackJurusan={'Teknik Jaringan Komputer':180,'Akuntansi Keuangan Lembaga':150,'Desain Komunikasi Visual':130,'Teknik Kendaraan Ringan':120,'Bisnis Digital':110,'Manajemen Perkantoran':92,'Teknik Sepeda Motor':60};
+  const fallbackKelasBreakdown={X:300,XI:290,XII:252}; // 300+290+252=842, konsisten dgn total demo di bawah
+  setHeroCounter('total',842,'');
+  setHeroCounter('jurusan',countJurusanRepresented({jurusan:fallbackJurusan}),'');
+  setHeroCounter('kelas',24,'');
+  updateKelasBreakdownStats({kelasBreakdown:fallbackKelasBreakdown});
   setBigNum('teknikal',312);setBigNum('kreatif',198);setBigNum('bisnis',146);setBigNum('sosial',186);
-  const fallbackCats={teknikal:312,kreatif:198,bisnis:146,sosial:186,total:842};
+  const fallbackCats={teknikal:312,kreatif:198,bisnis:146,sosial:186,total:842,avgRiasec:{R:14.2,I:11.8,A:12.5,S:12.9,E:10.6,C:9.7}};
   updateInfoCardHighlights(fallbackCats);
   updateInsightBanner(fallbackCats);
-  updateBarChart({'Teknik Jaringan Komputer':180,'Akuntansi Keuangan Lembaga':150,'Desain Komunikasi Visual':130,'Teknik Kendaraan Ringan':120,'Bisnis Digital':110,'Manajemen Perkantoran':92,'Teknik Sepeda Motor':60});
-  updateDonut({teknikal:312,kreatif:198,bisnis:146,sosial:186,terpetakan:78,total:842});
+  updateBarChart(fallbackJurusan);
+  updateDonut(fallbackCats);
+  updateRadarChart(fallbackCats);
   updateBakatAreaFallback();
 }
 
@@ -2011,10 +2147,87 @@ function updateDonut(d){
   });
   const dc=document.getElementById('donut-center');
   if(dc){
-    /* Pakai fungsi terpusat computeTerpetakanPct() agar angka di
-       donut-chart selalu sinkron dengan hero-stat "Bakat Terpetakan". */
+    /* Angka di tengah donut = % responden yang sudah punya kategori
+       bakat RIASEC lengkap (computeTerpetakanPct) — metrik kelengkapan
+       data kategori klaster (teknikal/kreatif/bisnis/sosial). */
     dc.textContent=computeTerpetakanPct(d)+'%';
   }
+}
+
+/* ── RADAR / JARING LABA-LABA — profil kompetensi 6 kategori RIASEC
+   (Kode Holland: R/I/A/S/E/C), menggantikan versi lama yang cuma 4
+   klaster gabungan (teknikal/bisnis/sosial/kreatif) — datanya dulu
+   duplikat persis dengan donut chart di sebelahnya, jadi tidak
+   menambah informasi baru.
+   Sumber data: field `d.avgRiasec = {R,I,A,S,E,C}` (rata-rata skor
+   0-20 per kategori, dihitung backend di buildAggregateData/
+   emptyAggregateData pada Code.gs — lihat variabel avgRiasec di sana).
+   FALLBACK AMAN: jika suatu saat backend mengirim respons lama yang
+   belum punya field ini (mis. cache Apps Script belum di-refresh
+   setelah deploy versi baru, atau field kosong/rusak), nilai R/I/A/S/E/C
+   diestimasi dari data klaster yang sudah ada — lihat RIASEC_META untuk
+   pemetaan cluster: teknikal→R, kreatif→A, bisnis→E, sedangkan klaster
+   "sosial" adalah gabungan I+S+C sehingga dibagi rata ke ketiganya.
+   Estimasi ini transparan: catatan kecil di bawah chart otomatis muncul
+   selama fallback dipakai, dan otomatis hilang begitu backend mengirim
+   `d.avgRiasec` yang valid.
+   Bentuk polygon tetap di-skalakan relatif terhadap kategori TERTINGGI
+   (bukan terhadap total), sehingga bentuknya menonjolkan profil/
+   kecenderungan siswa secara visual. Angka % pada legend tetap dihitung
+   dari total agar tidak menyesatkan meski bentuk polygon relatif. ── */
+function getRiasecRadarData(d){
+  const order=['R','I','A','S','E','C'];
+  const hasReal=d&&d.avgRiasec&&typeof d.avgRiasec==='object'&&
+    order.some(k=>typeof d.avgRiasec[k]==='number'&&!isNaN(d.avgRiasec[k])&&d.avgRiasec[k]>0);
+  if(hasReal){
+    const vals={};
+    order.forEach(k=>{vals[k]=Number(d.avgRiasec[k])||0;});
+    return{vals,estimated:false};
+  }
+  const sosialSplit=(Number(d&&d.sosial)||0)/3;
+  const vals={
+    R:Number(d&&d.teknikal)||0,
+    I:sosialSplit,
+    A:Number(d&&d.kreatif)||0,
+    S:sosialSplit,
+    E:Number(d&&d.bisnis)||0,
+    C:sosialSplit,
+  };
+  const estimated=Object.values(vals).some(v=>v>0);
+  return{vals,estimated};
+}
+function updateRadarChart(d){
+  const svg=document.getElementById('radar-polygon');
+  if(!svg)return;
+  const cx=100,cy=100,radius=60;
+  const order=['R','I','A','S','E','C'];
+  const angleDeg={R:-90,I:-30,A:30,S:90,E:150,C:210};
+  const{vals,estimated}=getRiasecRadarData(d);
+  const rawVals=order.map(k=>vals[k]||0);
+  const total=rawVals.reduce((s,v)=>s+v,0)||1;
+  const maxVal=Math.max(...rawVals,1);
+  const coordFor=(deg,r)=>{
+    const rad=deg*Math.PI/180;
+    return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];
+  };
+  const pts=order.map(k=>{
+    const val=vals[k]||0;
+    const r=radius*(val/maxVal);
+    const[x,y]=coordFor(angleDeg[k],r);
+    return{key:k,val,x,y,pct:Math.round((val/total)*100)};
+  });
+  svg.setAttribute('points',pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+  pts.forEach(p=>{
+    const idKey=p.key.toLowerCase();
+    const dot=document.getElementById('radar-dot-'+idKey);
+    if(dot){dot.setAttribute('cx',p.x.toFixed(1));dot.setAttribute('cy',p.y.toFixed(1));}
+    const legendPct=document.getElementById('radarlegend-'+idKey);
+    if(legendPct)legendPct.textContent=p.pct+'%';
+    const legendBar=document.getElementById('radarlegendbar-'+idKey);
+    if(legendBar)legendBar.style.width=p.pct+'%';
+  });
+  const note=document.getElementById('radar-estimate-note');
+  if(note)note.style.display=estimated?'block':'none';
 }
 
 /* ── BAKAT MENONJOL & AREA PENGEMBANGAN: tabel ranking ── */
