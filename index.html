@@ -28,7 +28,7 @@
   --transition:.2s cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;font-size:16px;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;font-size:16px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text-dark);overflow-x:hidden;line-height:1.6}
 h1,h2,h3,h4,h5,h6{font-family:'Plus Jakarta Sans',sans-serif;line-height:1.15}
 a{text-decoration:none;color:inherit}
@@ -287,7 +287,8 @@ img,svg{display:block}
   font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:50px;
   background:var(--blue-pale);color:var(--blue-mid);margin-left:auto;
 }
-.rank-table{width:100%;border-collapse:collapse;font-size:12px}
+.rank-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.rank-table th:last-child,.rank-table td:last-child{width:96px}
 .rank-table thead tr{background:var(--blue-deep)}
 .rank-table thead th{
   padding:7px 10px;text-align:left;font-size:10px;font-weight:700;
@@ -309,17 +310,17 @@ img,svg{display:block}
 .rt-rank.r2{background:#90a4ae}
 .rt-rank.r3{background:#a1887f}
 .rt-rank.rn{background:var(--blue-pale);color:var(--blue-mid)}
-.rt-name{font-weight:600;color:var(--text-dark);display:flex;align-items:center;gap:7px}
+.rt-name{font-weight:600;color:var(--text-dark);display:flex;align-items:center;gap:7px;flex-wrap:wrap;overflow-wrap:break-word;min-width:0}
 .rt-icon{font-size:15px}
 .rt-count{
   font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:14px;color:var(--blue-deep);
 }
 .rt-bar-mini{
-  display:inline-block;height:6px;border-radius:3px;
+  display:inline-block;height:6px;border-radius:3px;max-width:48px;
   background:linear-gradient(90deg,var(--blue-bright),var(--blue-light));
   vertical-align:middle;margin-left:8px;transition:width .8s ease;min-width:4px;
 }
-.rt-count-wrap{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.rt-count-wrap{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
 .rank-empty{
   text-align:center;padding:28px 12px;color:var(--text-muted);font-size:12.5px;
   background:#fff;border-radius:var(--radius-sm);border:1.5px dashed rgba(30,136,229,.15);
@@ -675,7 +676,7 @@ img,svg{display:block}
 @media(max-width:1024px){
   .infographic-grid{grid-template-columns:repeat(2,1fr)}
   .hero-inner{grid-template-columns:1fr}
-  .hero-stats{max-width:520px}
+  .hero-stats{max-width:520px;grid-template-columns:repeat(3,1fr)}
   #main-layout{grid-template-columns:1fr}
   .sidebar{position:static}
 }
@@ -786,7 +787,7 @@ img,svg{display:block}
 <nav id="app-nav">
   <div class="nav-inner">
     <a class="nav-brand" data-page="dashboard" href="#beranda" role="button" aria-label="Beranda Penelusuran Bakat">
-      <div class="nav-brand-icon"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiD-8YPFS6i86EyZZNDUhwuam5ro_mtc9So2muvB7EDWz1Zp6rarLubvVS3vfVVoto_S6SaHlIPPnmNaddUugGUztWkJYhDwwT8CU1BcUuq9TNyxnHKa6B44iDBx6LjR1-z3r7_C34jviaWeOYgk4bNJHsziPV4KR5mQjY69HV--R3STD4xp-b46x_HeR4/s160/An8Em6pLCtVUNFZTK-rgdQG9pKiDxE1AR7m_1QO_5slD3C5qFXYq7S9suI1ztpViB_aUnbOGE2-Y71AU9SF3GjQzZ09xbw5aat-JT_7ptJ4VcfdGeJ73DWbHD9IDtVHa_16MjCj09HJ4eGBvZMo-removebg-preview.png" alt="Logo SMK Ciledug Al-Musaddadiyah" width="34" height="34" style="width:100%;height:100%;object-fit:contain;background:#fff;border-radius:9px" onerror="this.parentElement.textContent='🧭';this.parentElement.style.background='linear-gradient(135deg,var(--blue-bright),var(--blue-light))'"/></div>
+      <div class="nav-brand-icon" role="img" aria-label="Logo SMK Ciledug Al-Musaddadiyah">🧭</div>
       <div class="nav-brand-text">
         <span>Peta Bakat Siswa</span>
         <span>SMK CALM Garut</span>
