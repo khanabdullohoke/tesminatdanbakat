@@ -2197,6 +2197,29 @@ function getRiasecRadarData(d){
   const estimated=Object.values(vals).some(v=>v>0);
   return{vals,estimated};
 }
+/* ── Pembulatan persentase yang saling dikoreksi ("largest remainder
+   method") supaya total 6 kategori selalu tepat 100% — bukan
+   dibulatkan sendiri-sendiri per kategori.
+   BUG LAMA: `Math.round((val/total)*100)` dihitung independen untuk
+   tiap kategori, jadi total 6 angka yang ditampilkan bisa jadi 99%
+   atau malah 102% (mis. 6 kategori yang nilainya persis sama semua
+   dibulatkan ke atas jadi 17% × 6 = 102%). Ini kelihatan jelas salah
+   saat totalnya dijumlah manual, meski tiap angka individual "masuk
+   akal". Largest-remainder method: bulatkan semua ke bawah dulu, lalu
+   sisa slot (100 − jumlah hasil pembulatan-ke-bawah) dibagikan ke
+   kategori dengan sisa desimal terbesar — hasilnya total selalu
+   persis 100 tanpa mengubah urutan besar-kecil kategori. ── */
+function distributePercentages(order,rawVals,total){
+  const shares=order.map((k,i)=>({key:k,raw:(rawVals[i]/total)*100}));
+  shares.forEach(s=>{s.floor=Math.floor(s.raw);s.rem=s.raw-s.floor;});
+  let allocated=shares.reduce((s,x)=>s+x.floor,0);
+  let remainder=100-allocated;
+  const byRemDesc=shares.slice().sort((a,b)=>b.rem-a.rem);
+  for(let i=0;i<remainder;i++)byRemDesc[i%byRemDesc.length].floor+=1;
+  const pctByKey={};
+  shares.forEach(s=>{pctByKey[s.key]=s.floor;});
+  return pctByKey;
+}
 function updateRadarChart(d){
   const svg=document.getElementById('radar-polygon');
   if(!svg)return;
@@ -2207,6 +2230,7 @@ function updateRadarChart(d){
   const rawVals=order.map(k=>vals[k]||0);
   const total=rawVals.reduce((s,v)=>s+v,0)||1;
   const maxVal=Math.max(...rawVals,1);
+  const pctByKey=distributePercentages(order,rawVals,total);
   const coordFor=(deg,r)=>{
     const rad=deg*Math.PI/180;
     return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];
@@ -2215,7 +2239,7 @@ function updateRadarChart(d){
     const val=vals[k]||0;
     const r=radius*(val/maxVal);
     const[x,y]=coordFor(angleDeg[k],r);
-    return{key:k,val,x,y,pct:Math.round((val/total)*100)};
+    return{key:k,val,x,y,pct:pctByKey[k]};
   });
   svg.setAttribute('points',pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
   pts.forEach(p=>{
