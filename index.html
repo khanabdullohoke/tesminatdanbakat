@@ -1786,18 +1786,31 @@ function loadCache(){
 function clearCache(){try{localStorage.removeItem(CACHE_KEY);}catch(_){}}
 
 /* ── Hitung persentase "Bakat Terpetakan" secara terpusat.
-   BUG LAMA: hero-stat memakai `d.terpetakan||0` langsung (macet/salah
+   BUG LAMA #1: hero-stat memakai `d.terpetakan||0` langsung (macet/salah
    kalau field itu tak dikirim backend), sedangkan donut-chart punya
-   fallback proporsional sendiri — akibatnya kedua tempat bisa beda
-   dan angka hero-stat terlihat "tidak pernah berubah". Sekarang
-   keduanya memakai satu sumber kebenaran yang sama. ── */
+   fallback proporsional sendiri — akibatnya kedua tempat bisa beda.
+   BUG LAMA #2: versi "fix" sebelumnya mengutamakan `d.terpetakan` kapan
+   pun berupa angka valid — termasuk 0. Jika backend mengirim
+   terpetakan:0 (field yang memang tak selalu dihitung backend) padahal
+   data kategori (teknikal/kreatif/bisnis/sosial) sudah terisi dari
+   responden, angka 0 itu tetap dipakai dan menimpa hasil hitung yang
+   benar → muncul "Bakat Terpetakan 0%" walau sudah ada responden.
+   Sekarang data kategori (sumber paling akurat & sinkron dengan
+   info-card/legend) selalu diutamakan; `d.terpetakan` hanya dipakai
+   sebagai fallback terakhir saat memang tidak ada data kategori sama
+   sekali (mis. data demo/fallback offline). ── */
 function computeTerpetakanPct(d){
+  const _catKeys=['teknikal','kreatif','bisnis','sosial'];
+  const _hasCatData=_catKeys.some(k=>typeof d[k]==='number'&&!isNaN(d[k])&&d[k]>0);
+  if(_hasCatData){
+    const terpetakanCount=_catKeys.reduce((s,k)=>s+(Number(d[k])||0),0);
+    const totalSiswa=d.total||terpetakanCount||1;
+    return Math.round((terpetakanCount/totalSiswa)*100);
+  }
   if(typeof d.terpetakan==='number'&&!isNaN(d.terpetakan)){
     return Math.round(d.terpetakan);
   }
-  const terpetakanCount=(d.teknikal||0)+(d.kreatif||0)+(d.bisnis||0)+(d.sosial||0);
-  const totalSiswa=d.total||terpetakanCount||1;
-  return Math.round((terpetakanCount/totalSiswa)*100);
+  return 0;
 }
 
 /* ── Proporsi & sorotan kartu kategori (agar tidak sekadar angka statis) ── */
