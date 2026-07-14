@@ -1038,6 +1038,7 @@ img,svg{display:block}
         </div>
         <div id="radar-dominant-note" style="display:none;font-size:11px;color:var(--text-mid);margin-top:14px;line-height:1.5;padding-top:12px;border-top:1px dashed rgba(30,136,229,.15)"></div>
         <div id="radar-estimate-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">⚠️ Data skor rata-rata per kategori R/I/A/S/E/C belum tersedia dari backend saat ini, jadi 6 sumbu di atas masih <strong>estimasi</strong> dari data klaster (Teknikal/Kreatif/Bisnis/Sosial gabungan). Grafik akan otomatis akurat begitu field <code>avgRiasec</code> tersedia dari backend.</div>
+        <div id="radar-nodata-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">ℹ️ Belum ada siswa yang mengisi inventori minat, jadi grafik jaring laba-laba di atas belum menunjukkan profil apa pun (0% di semua sumbu). Grafik akan otomatis terisi begitu ada data asesmen masuk.</div>
       </div>
 
       <!-- PETA BAKAT — Tabel Area Perlu Diasah -->
@@ -2385,16 +2386,28 @@ function updateRadarChart(d){
   const angleDeg={R:-90,I:-30,A:30,S:90,E:150,C:210};
   const{vals,estimated}=getRiasecRadarData(d);
   const rawVals=order.map(k=>vals[k]||0);
-  const total=rawVals.reduce((s,v)=>s+v,0)||1;
+  const total=rawVals.reduce((s,v)=>s+v,0);
+  /* ── BUG LAMA: saat total=0 (belum ada siswa mengisi asesmen sama
+     sekali — kondisi jujur, bukan error), kode lama tetap memakai
+     `total||1` lalu membagikan 100% rata ke 6 kategori pakai
+     largest-remainder method. Hasilnya SELALU pola 17/17/17/17/16/16
+     (100÷6 dibulatkan) yang terlihat seolah-olah ada data nyata dengan
+     sebaran hampir merata — padahal sebenarnya kosong total. Ini yang
+     bikin dashboard terlihat "datanya belum terkoneksi dengan baik".
+     Diperbaiki: kalau total benar-benar 0, JANGAN dipaksa jadi 100%.
+     Tampilkan apa adanya — 0% di semua sumbu, polygon kolaps ke titik
+     tengah, dan catatan "belum ada data" yang jujur (bukan catatan
+     "estimasi" yang menyiratkan seolah ada angka meski perkiraan). ── */
+  const hasData=total>0;
   const maxVal=Math.max(...rawVals,1);
-  const pctByKey=distributePercentages(order,rawVals,total);
+  const pctByKey=hasData?distributePercentages(order,rawVals,total):order.reduce((o,k)=>{o[k]=0;return o;},{});
   const coordFor=(deg,r)=>{
     const rad=deg*Math.PI/180;
     return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];
   };
   const pts=order.map(k=>{
     const val=vals[k]||0;
-    const r=radius*(val/maxVal);
+    const r=hasData?radius*(val/maxVal):0;
     const[x,y]=coordFor(angleDeg[k],r);
     return{key:k,val,x,y,pct:pctByKey[k]};
   });
@@ -2404,20 +2417,24 @@ function updateRadarChart(d){
     const dot=document.getElementById('radar-dot-'+idKey);
     if(dot){dot.setAttribute('cx',p.x.toFixed(1));dot.setAttribute('cy',p.y.toFixed(1));}
     const legendPct=document.getElementById('radarlegend-'+idKey);
-    if(legendPct)legendPct.textContent=p.pct+'%';
+    if(legendPct)legendPct.textContent=hasData?(p.pct+'%'):'0%';
     const legendBar=document.getElementById('radarlegendbar-'+idKey);
-    if(legendBar)legendBar.style.width=p.pct+'%';
+    if(legendBar)legendBar.style.width=(hasData?p.pct:0)+'%';
   });
   const note=document.getElementById('radar-estimate-note');
-  if(note)note.style.display=estimated?'block':'none';
+  if(note)note.style.display=(hasData&&estimated)?'block':'none';
+  const nodataNote=document.getElementById('radar-nodata-note');
+  if(nodataNote)nodataNote.style.display=hasData?'none':'block';
 
   /* ── Caption "sumbu tertinggi + jurusan pendominasi" ──
      Sumbu dgn skor tertinggi (rawVals) dipetakan ke klaster via
      RIASEC_META[k].cluster, lalu dicari jurusan real (d.jurusan) yang
-     mendominasi klaster itu — konsisten dgn logika info-card di atas. ── */
+     mendominasi klaster itu — konsisten dgn logika info-card di atas.
+     Hanya ditampilkan kalau memang ada data (hasData), supaya tidak
+     mengklaim ada "sumbu tertinggi" padahal semua sumbu 0. ── */
   const domNote=document.getElementById('radar-dominant-note');
   if(domNote){
-    if(total>0){
+    if(hasData){
       let topKey=order[0];
       order.forEach(k=>{if((vals[k]||0)>(vals[topKey]||0))topKey=k;});
       const meta=RIASEC_META[topKey];
