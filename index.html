@@ -242,6 +242,14 @@ img,svg{display:block}
 .info-card-bar-track{flex:1;height:5px;border-radius:3px;background:rgba(30,136,229,.08);overflow:hidden}
 .info-card-bar-fill{height:100%;border-radius:3px;width:0%;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
 .info-card-pct{font-size:9.5px;color:var(--text-muted);font-weight:700;flex-shrink:0;white-space:nowrap}
+.info-card-jurusan{font-size:9.5px;color:var(--text-muted);margin-top:8px;line-height:1.5;min-height:13px}
+.info-card-jurusan b{color:var(--text-mid);font-weight:700}
+.jurusan-kategori-list{display:flex;flex-direction:column;gap:9px}
+.jk-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--cream);border-radius:10px;border:1px solid rgba(30,136,229,.08);flex-wrap:wrap}
+.jk-jurusan{font-size:12.5px;font-weight:700;color:var(--text-dark);flex:1 1 140px;min-width:0}
+.jk-arrow{color:var(--text-muted);font-size:12px;flex-shrink:0}
+.jk-kategori{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:50px;flex-shrink:0;white-space:nowrap}
+.jk-count{font-size:10px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;margin-left:auto}
 
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
 .chart-box{
@@ -903,6 +911,7 @@ img,svg{display:block}
             <div class="info-card-bar-track"><div class="info-card-bar-fill" id="propbar-teknikal" style="background:var(--blue-bright)"></div></div>
             <span class="info-card-pct" id="proppct-teknikal">–</span>
           </div>
+          <div class="info-card-jurusan" id="jurcat-teknikal"></div>
         </article>
         <article class="info-card" style="--card-accent:#7b1fa2">
           <span class="info-card-badge" id="badge-kreatif" style="background:#7b1fa2;color:#fff">🔥 Terbanyak</span>
@@ -913,6 +922,7 @@ img,svg{display:block}
             <div class="info-card-bar-track"><div class="info-card-bar-fill" id="propbar-kreatif" style="background:#7b1fa2"></div></div>
             <span class="info-card-pct" id="proppct-kreatif">–</span>
           </div>
+          <div class="info-card-jurusan" id="jurcat-kreatif"></div>
         </article>
         <article class="info-card" style="--card-accent:#e65100">
           <span class="info-card-badge" id="badge-bisnis" style="background:#e65100;color:#fff">🔥 Terbanyak</span>
@@ -923,6 +933,7 @@ img,svg{display:block}
             <div class="info-card-bar-track"><div class="info-card-bar-fill" id="propbar-bisnis" style="background:#e65100"></div></div>
             <span class="info-card-pct" id="proppct-bisnis">–</span>
           </div>
+          <div class="info-card-jurusan" id="jurcat-bisnis"></div>
         </article>
         <article class="info-card" style="--card-accent:var(--green)">
           <span class="info-card-badge" id="badge-sosial" style="background:var(--green);color:#fff">🔥 Terbanyak</span>
@@ -933,7 +944,16 @@ img,svg{display:block}
             <div class="info-card-bar-track"><div class="info-card-bar-fill" id="propbar-sosial" style="background:var(--green)"></div></div>
             <span class="info-card-pct" id="proppct-sosial">–</span>
           </div>
+          <div class="info-card-jurusan" id="jurcat-sosial"></div>
         </article>
+      </div>
+
+      <div class="chart-box reveal" id="jurusan-kategori-box" style="margin-bottom:20px">
+        <h3>Kategori Bakat Dominan per Jurusan</h3>
+        <div id="jurusan-kategori-list" class="jurusan-kategori-list">
+          <div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">⏳ Memuat data...</div>
+        </div>
+        <div id="jurusan-kategori-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5"></div>
       </div>
 
       <div class="chart-box reveal" style="margin-bottom:20px">
@@ -1030,6 +1050,7 @@ img,svg{display:block}
               </div>
             </div>
           </div>
+          <div id="radar-dominant-note" style="display:none;font-size:11px;color:var(--text-mid);margin-top:10px;line-height:1.5;padding-top:10px;border-top:1px dashed rgba(30,136,229,.15)"></div>
           <div id="radar-estimate-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">⚠️ Data skor rata-rata per kategori R/I/A/S/E/C belum tersedia dari backend saat ini, jadi 6 sumbu di atas masih <strong>estimasi</strong> dari data klaster (Teknikal/Kreatif/Bisnis/Sosial gabungan). Grafik akan otomatis akurat begitu field <code>avgRiasec</code> tersedia dari backend.</div>
         </div>
       </div>
@@ -1355,6 +1376,39 @@ function normalizeJurusan(raw){
   if(!raw)return'Lainnya';
   return JURUSAN_MAP[raw.trim().toLowerCase()]||raw.trim();
 }
+/* ── PEMETAAN JURUSAN → KLASTER RIASEC ──
+   Dipakai untuk menjawab "kategori bakat dominan ini paling banyak
+   diminati oleh jurusan apa?" berdasarkan data jurusan yang BENAR-BENAR
+   masuk (d.jurusan, hasil input siswa), bukan angka karangan.
+   Pemetaan jurusan→klaster di bawah bersifat pengetahuan vokasional baku
+   (mis. jurusan teknik → klaster Realistik/Teknikal, DKV → Artistik/
+   Kreatif, dst.) — dipakai HANYA untuk memfilter jurusan mana yang
+   relevan dicek pada klaster tertentu; jumlah siswanya sendiri tetap
+   diambil apa adanya dari d.jurusan (data input asli, bukan estimasi). ── */
+const JURUSAN_TO_CLUSTER={
+  'Teknik Jaringan Komputer':'teknikal',
+  'Teknik Kendaraan Ringan':'teknikal',
+  'Teknik Sepeda Motor':'teknikal',
+  'Desain Komunikasi Visual':'kreatif',
+  'Bisnis Digital':'bisnis',
+  'Akuntansi Keuangan Lembaga':'sosial',
+  'Manajemen Perkantoran':'sosial',
+};
+/* Cari jurusan dengan jumlah siswa terbanyak (dari d.jurusan) di antara
+   jurusan-jurusan yang secara vokasional termasuk klaster tsb. Kalau
+   tidak ada jurusan yang cocok/terdata, kembalikan null (tidak
+   mengarang jawaban). */
+function getDominantJurusanForCluster(cluster,jurusanData){
+  if(!jurusanData||typeof jurusanData!=='object')return null;
+  let best=null,bestCount=0;
+  Object.entries(jurusanData).forEach(([nama,jumlah])=>{
+    const key=normalizeJurusan(nama);
+    if(JURUSAN_TO_CLUSTER[key]!==cluster)return;
+    const n=Number(jumlah)||0;
+    if(n>bestCount){bestCount=n;best=key;}
+  });
+  return bestCount>0?{nama:best,jumlah:bestCount}:null;
+}
 /* ── ICON MAP: kategori bakat & area pengembangan ── */
 const BAKAT_ICONS={
   'realistik/teknikal':'🔧','investigatif/analitis':'🔍','artistik/kreatif':'🎨',
@@ -1367,6 +1421,78 @@ const AREA_ICONS={
 };
 function getBakatIcon(name){return BAKAT_ICONS[(name||'').toLowerCase().trim()]||'⭐';}
 function getAreaIcon(name){return AREA_ICONS[(name||'').toLowerCase().trim()]||'🎯';}
+
+/* ── Warna badge kategori bakat (6 label RIASEC persis seperti yang
+   dikirim tiap siswa lewat `kategoriBakat`) — dipakai di panel
+   "Kategori Bakat Dominan per Jurusan" di bawah. ── */
+const KATEGORI_BADGE_STYLE={
+  'Realistik/Teknikal':{bg:'var(--blue-pale)',color:'var(--blue-mid)'},
+  'Investigatif/Analitis':{bg:'#e0f7fa',color:'#00838f'},
+  'Artistik/Kreatif':{bg:'#f3e5f5',color:'#7b1fa2'},
+  'Sosial/Komunikatif':{bg:'#e8f5e9',color:'var(--green)'},
+  'Enterprising/Bisnis':{bg:'#fff8e1',color:'#e65100'},
+  'Konvensional/Terorganisir':{bg:'#fce4ec',color:'#ad1457'},
+};
+
+/* ── Kategori bakat dominan PER JURUSAN ──
+   Dihitung dari `d.stories` — satu-satunya sumber di frontend yang
+   punya PASANGAN nyata jurusan + kategoriBakat per siswa. Data agregat
+   lain (d.jurusan, d.teknikal/kreatif/bisnis/sosial) hanya total
+   marginal masing-masing, jadi TIDAK BISA dipakai menyimpulkan "jurusan
+   X dominan kategori Y" tanpa mengarang-ngarang (persoalan inferensi
+   ekologis klasik). Karena hanya siswa yang membagikan kisah/pesan yang
+   datanya sampai ke frontend, hasil ini adalah SAMPEL — bukan sensus
+   penuh seluruh responden — makanya jumlah kisah yang jadi dasar
+   penghitungan SELALU ditampilkan (mis. "8/10 kisah") supaya tidak
+   menyesatkan. Kalau suatu saat backend mengirim tabulasi penuh (mis.
+   field `d.jurusanKategoriMatrix` dari seluruh responden, bukan cuma
+   yang berkisah), tinggal utamakan field itu di sini. ── */
+function computeDominantKategoriPerJurusan(stories){
+  const matrix={};
+  (stories||[]).forEach(s=>{
+    if(!s||!s.jurusan||!s.kategoriBakat)return;
+    const jur=normalizeJurusan(s.jurusan);
+    const kat=s.kategoriBakat;
+    matrix[jur]=matrix[jur]||{};
+    matrix[jur][kat]=(matrix[jur][kat]||0)+1;
+  });
+  const result={};
+  Object.entries(matrix).forEach(([jur,kats])=>{
+    let topKat=null,topCount=0,total=0;
+    Object.entries(kats).forEach(([kat,n])=>{
+      total+=n;
+      if(n>topCount){topCount=n;topKat=kat;}
+    });
+    result[jur]={kategori:topKat,count:topCount,total};
+  });
+  return result;
+}
+
+function updateJurusanKategoriList(d){
+  const list=document.getElementById('jurusan-kategori-list');
+  const note=document.getElementById('jurusan-kategori-note');
+  if(!list)return;
+  const map=computeDominantKategoriPerJurusan(d.stories||[]);
+  const jurusanNames=Object.keys(map);
+  if(jurusanNames.length===0){
+    list.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">Belum cukup data kisah siswa untuk memetakan kategori bakat dominan per jurusan.</div>';
+    if(note)note.style.display='none';
+    return;
+  }
+  /* Urutkan jurusan dengan jumlah kisah terbanyak dulu — hasil dari
+     sampel yang lebih besar lebih layak dipercaya duluan. */
+  jurusanNames.sort((a,b)=>map[b].total-map[a].total);
+  list.innerHTML=jurusanNames.map(jur=>{
+    const info=map[jur];
+    const style=KATEGORI_BADGE_STYLE[info.kategori]||{bg:'var(--blue-pale)',color:'var(--blue-mid)'};
+    const icon=getBakatIcon(info.kategori);
+    return`<div class="jk-row"><span class="jk-jurusan">${escHtml(jur)}</span><span class="jk-arrow">→</span><span class="jk-kategori" style="background:${style.bg};color:${style.color}">${icon} ${escHtml(info.kategori)}</span><span class="jk-count">${info.count}/${info.total} kisah</span></div>`;
+  }).join('');
+  if(note){
+    note.textContent='📊 Dihitung dari kisah/pesan yang dibagikan siswa per jurusan (sampel, bukan seluruh responden) — semakin banyak kisah, semakin representatif.';
+    note.style.display='block';
+  }
+}
 
 /* ── PAGE SWITCHER ── */
 function showPage(name){
@@ -1664,9 +1790,21 @@ function validate(){
     const errEl=document.getElementById(err);
     if(!el)return;
     let isEmpty;
+    /* ── Validasi FORMAT, bukan cuma "tidak kosong" ── */
     if(id==='f-email'){
       const v=el.value.trim();
       isEmpty=!v||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    } else if(id==='f-kontak'){
+      const v=el.value.trim();
+      /* Nomor HP/WhatsApp Indonesia: 08xxxxxxxxxx atau +62/62 8xxxxxxxxxx, 10-14 digit */
+      const digits=v.replace(/[\s-]/g,'');
+      isEmpty=!v||!/^(?:\+62|62|0)8[0-9]{8,12}$/.test(digits);
+      if(isEmpty&&v)msg='Format nomor tidak valid. Gunakan format 08xxxxxxxxxx.';
+    } else if(id==='f-nisn'){
+      const v=el.value.trim();
+      /* NISN/NIS: hanya angka, umumnya 5-10 digit */
+      isEmpty=!v||!/^[0-9]{5,10}$/.test(v);
+      if(isEmpty&&v)msg='NISN/NIS harus berupa angka (5-10 digit).';
     } else {
       const val=el.value;
       isEmpty=!val||(el.tagName!=='SELECT'&&!val.trim());
@@ -1947,12 +2085,19 @@ function computeTerpetakanPct(d){
   return 0;
 }
 
-/* ── Proporsi & sorotan kartu kategori (agar tidak sekadar angka statis) ── */
+/* ── Proporsi & sorotan kartu kategori (agar tidak sekadar angka statis) ──
+   `isLeading` kini ditentukan dari getClusterProfileFromRiasec(d) — sumber
+   yang SAMA dengan grafik radar — bukan dari d.teknikal/kreatif/bisnis/
+   sosial mentah, supaya badge "🔥 Terbanyak" di sini selalu selaras
+   dengan bentuk jaring laba-laba di bawahnya. Proporsi bar (%) tetap
+   memakai jumlah siswa asli (d.teknikal dst.) karena itu statistik sah
+   yang berbeda tujuan ("berapa siswa", bukan "mana yang dominan"). ── */
 function updateInfoCardHighlights(d){
   const cats=[['teknikal',d.teknikal||0],['kreatif',d.kreatif||0],['bisnis',d.bisnis||0],['sosial',d.sosial||0]];
   const total=cats.reduce((s,[,v])=>s+v,0)||1;
+  const profile=getClusterProfileFromRiasec(d);
   let maxVal=-1,maxCat=null;
-  cats.forEach(([c,v])=>{if(v>maxVal){maxVal=v;maxCat=c;}});
+  cats.forEach(([c])=>{const v=profile[c]||0;if(v>maxVal){maxVal=v;maxCat=c;}});
   cats.forEach(([c,v])=>{
     const pctVal=Math.round((v/total)*100);
     const bar=document.getElementById('propbar-'+c);
@@ -1964,26 +2109,39 @@ function updateInfoCardHighlights(d){
     const isLeading=(c===maxCat&&maxVal>0);
     if(badge)badge.style.display=isLeading?'inline-block':'none';
     if(card)card.classList.toggle('leading',isLeading);
+    /* Jurusan yang mendominasi klaster ini — dihitung dari data jurusan
+       input asli (d.jurusan), difilter lewat JURUSAN_TO_CLUSTER. */
+    const jurEl=document.getElementById('jurcat-'+c);
+    if(jurEl){
+      const dom=getDominantJurusanForCluster(c,d.jurusan);
+      jurEl.textContent=dom?`🏫 Didominasi jurusan ${dom.nama} (${dom.jumlah} siswa)`:'';
+    }
   });
 }
 
-/* ── Insight naratif — mengubah angka mentah jadi kalimat yang mudah dipahami ── */
+/* ── Insight naratif — mengubah angka mentah jadi kalimat yang mudah dipahami ──
+   Kategori "top" kini juga memakai getClusterProfileFromRiasec(d) — sama
+   dengan info-card & radar — sehingga kalimat insight tidak pernah
+   menyebut kategori yang berbeda dari yang disorot di kartu/radar. ── */
 function updateInsightBanner(d){
   const el=document.getElementById('insight-banner');
   const txt=document.getElementById('insight-text');
   if(!el||!txt)return;
+  const profile=getClusterProfileFromRiasec(d);
   const cats=[
-    ['Realistik & Teknikal',d.teknikal||0,'praktik dan hal-hal teknis'],
-    ['Artistik & Kreatif',d.kreatif||0,'desain dan ide-ide baru'],
-    ['Enterprising & Bisnis',d.bisnis||0,'memimpin dan berwirausaha'],
-    ['Sosial & Analitis',d.sosial||0,'interaksi sosial dan analisis'],
-  ];
+    ['Realistik & Teknikal','teknikal','praktik dan hal-hal teknis'],
+    ['Artistik & Kreatif','kreatif','desain dan ide-ide baru'],
+    ['Enterprising & Bisnis','bisnis','memimpin dan berwirausaha'],
+    ['Sosial & Analitis','sosial','interaksi sosial dan analisis'],
+  ].map(([label,key,desc])=>[label,profile[key]||0,desc,key]);
   const total=cats.reduce((s,c)=>s+c[1],0);
   if(total<=0){el.style.display='none';return;}
   const top=[...cats].sort((a,b)=>b[1]-a[1])[0];
   const pct=Math.round((top[1]/total)*100);
-  const totalSiswa=d.total||total;
-  txt.innerHTML=`Dari <strong>${escHtml(String(totalSiswa))} siswa</strong> yang telah mengikuti asesmen, <strong>${pct}%</strong> menunjukkan kecenderungan kuat pada <strong>${escHtml(top[0])}</strong> — didominasi minat terhadap ${escHtml(top[2])}. Insight ini membantu tim Bimbingan Konseling menyusun program pengembangan bakat yang lebih tepat sasaran.`;
+  const totalSiswa=d.total||(d.teknikal||0)+(d.kreatif||0)+(d.bisnis||0)+(d.sosial||0);
+  const dom=getDominantJurusanForCluster(top[3],d.jurusan);
+  const jurusanClause=dom?` Kategori ini paling banyak diminati oleh siswa jurusan <strong>${escHtml(dom.nama)}</strong>.`:'';
+  txt.innerHTML=`Dari <strong>${escHtml(String(totalSiswa))} siswa</strong> yang telah mengikuti asesmen, profil kompetensi menunjukkan kecenderungan kuat pada <strong>${escHtml(top[0])}</strong> — didominasi minat terhadap ${escHtml(top[2])}.${jurusanClause} Insight ini membantu tim Bimbingan Konseling menyusun program pengembangan bakat yang lebih tepat sasaran.`;
   el.style.display='flex';
 }
 
@@ -2004,6 +2162,7 @@ function renderData(d,source){
   setBigNum('sosial',d.sosial||0);
   updateInfoCardHighlights(d);
   updateInsightBanner(d);
+  updateJurusanKategoriList(d);
   if(d.jurusan&&Object.keys(d.jurusan).length>0){
     updateBarChart(d.jurusan);
   } else {
@@ -2085,9 +2244,10 @@ function loadFallbackData(){
   setHeroCounter('kelas',24,'');
   updateKelasBreakdownStats({kelasBreakdown:fallbackKelasBreakdown});
   setBigNum('teknikal',312);setBigNum('kreatif',198);setBigNum('bisnis',146);setBigNum('sosial',186);
-  const fallbackCats={teknikal:312,kreatif:198,bisnis:146,sosial:186,total:842,avgRiasec:{R:14.2,I:11.8,A:12.5,S:12.9,E:10.6,C:9.7}};
+  const fallbackCats={teknikal:312,kreatif:198,bisnis:146,sosial:186,total:842,jurusan:fallbackJurusan,avgRiasec:{R:14.2,I:11.8,A:12.5,S:12.9,E:10.6,C:9.7}};
   updateInfoCardHighlights(fallbackCats);
   updateInsightBanner(fallbackCats);
+  updateJurusanKategoriList(fallbackCats);
   updateBarChart(fallbackJurusan);
   updateDonut(fallbackCats);
   updateRadarChart(fallbackCats);
@@ -2201,6 +2361,32 @@ function getRiasecRadarData(d){
   const estimated=Object.values(vals).some(v=>v>0);
   return{vals,estimated};
 }
+/* ── SUMBER TUNGGAL untuk "kategori bakat dominan" ──
+   BUG LAMA: info-card (badge "🔥 Terbanyak" & kalimat insight) menghitung
+   kategori terbanyak dari `d.teknikal/d.kreatif/d.bisnis/d.sosial`
+   (jumlah siswa dengan bakat #1 di klaster itu), SEDANGKAN grafik radar
+   menghitung sumbu tertinggi dari `d.avgRiasec` (rata-rata skor R/I/A/
+   S/E/C). Dua metrik ini mengukur hal berbeda (modus vs rata-rata) dan
+   bisa menunjuk kategori "dominan" yang BERBEDA — membingungkan karena
+   keduanya ditampilkan berdampingan seolah harus sama.
+   Diperbaiki dengan menjadikan profil RIASEC radar (`getRiasecRadarData`,
+   sumber sama persis dgn bentuk jaring laba-laba) sebagai SATU-SATUNYA
+   acuan untuk menentukan kategori dominan di info-card & kalimat
+   insight juga — R→teknikal, A→kreatif, E→bisnis, (I+S+C)→sosial. Angka
+   besar (312, 198, dst.) di tiap info-card TETAP memakai jumlah siswa
+   asli dari backend (itu statistik sah tersendiri: "berapa siswa" per
+   klaster) — hanya status "mana yang dominan" yang kini konsisten
+   dengan grafik radar di sebelahnya. ── */
+function getClusterProfileFromRiasec(d){
+  const{vals,estimated}=getRiasecRadarData(d);
+  return{
+    teknikal:vals.R||0,
+    kreatif:vals.A||0,
+    bisnis:vals.E||0,
+    sosial:(vals.I||0)+(vals.S||0)+(vals.C||0),
+    estimated,
+  };
+}
 /* ── Pembulatan persentase yang saling dikoreksi ("largest remainder
    method") supaya total 6 kategori selalu tepat 100% — bukan
    dibulatkan sendiri-sendiri per kategori.
@@ -2257,6 +2443,25 @@ function updateRadarChart(d){
   });
   const note=document.getElementById('radar-estimate-note');
   if(note)note.style.display=estimated?'block':'none';
+
+  /* ── Caption "sumbu tertinggi + jurusan pendominasi" ──
+     Sumbu dgn skor tertinggi (rawVals) dipetakan ke klaster via
+     RIASEC_META[k].cluster, lalu dicari jurusan real (d.jurusan) yang
+     mendominasi klaster itu — konsisten dgn logika info-card di atas. ── */
+  const domNote=document.getElementById('radar-dominant-note');
+  if(domNote){
+    if(total>0){
+      let topKey=order[0];
+      order.forEach(k=>{if((vals[k]||0)>(vals[topKey]||0))topKey=k;});
+      const meta=RIASEC_META[topKey];
+      const dom=getDominantJurusanForCluster(meta.cluster,d.jurusan);
+      const jurusanTxt=dom?` — paling menonjol di jurusan <b>${escHtml(dom.nama)}</b>`:'';
+      domNote.innerHTML=`📌 Sumbu tertinggi: <b>${topKey} · ${escHtml(meta.label)}</b>${jurusanTxt}.`;
+      domNote.style.display='block';
+    } else {
+      domNote.style.display='none';
+    }
+  }
 }
 
 /* ── BAKAT MENONJOL & AREA PENGEMBANGAN: tabel ranking ── */
@@ -2380,7 +2585,7 @@ function renderStoriesPage(){
     const emoji=getBakatEmoji(s.kategoriBakat);
     const badgeBg=gi%2===0?'var(--blue-pale)':'#f3e5f5';
     const badgeColor=gi%2===0?'var(--blue-mid)':'#7b1fa2';
-    const cardId=buildCardId(s,gi);
+    const cardId=buildCardId(s);
     _siswaCardMap[cardId]={nama:s.nama||'Siswa'};
     const reactions=getReactions(cardId);
     const comments=getComments(cardId);
@@ -2442,10 +2647,29 @@ function updateStories(stories){
 
 function escHtml(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-/* ── REACTION & COMMENT SYSTEM ── */
-function buildCardId(s,gi){
+/* ── REACTION & COMMENT SYSTEM ──
+   Reaksi & komentar disimpan di localStorage per-browser (bukan di
+   backend/Google Sheet), sehingga sengaja tetap bersifat lokal per
+   perangkat — BERBEDA dari data dashboard lain (total siswa, RIASEC,
+   jurusan, stories) yang selalu live dari APPS_SCRIPT_URL.
+   BUG LAMA: cardId dibangun dari `nama + gi` (indeks posisi siswa dalam
+   array _allStories). Begitu urutan stories berubah — data baru datang
+   dgn urutan berbeda, ada siswa baru masuk di tengah, atau pindah
+   halaman — gi bergeser, sehingga reaksi/komentar yang tersimpan bisa
+   "salah nempel" ke siswa lain yang kebetulan menempati gi yang sama.
+   Sekarang cardId dibangun dari fingerprint KONTEN siswa (nama +
+   jurusan + kelas + pesan) via hash sederhana, sehingga tetap stabil
+   berapa pun kali data di-refresh atau diurutkan ulang, selama isi
+   kisahnya sama. ── */
+function _hashStr(str){
+  let h=0;
+  for(let i=0;i<str.length;i++){h=(h*31+str.charCodeAt(i))|0;}
+  return Math.abs(h).toString(36);
+}
+function buildCardId(s){
   const name=(s.nama||'siswa').replace(/\s+/g,'_').toLowerCase().replace(/[^a-z0-9_]/g,'');
-  return'card_'+name+'_'+gi;
+  const fingerprint=[s.nama,s.jurusan,s.kelas,s.pesan].map(v=>String(v||'').trim().toLowerCase()).join('|');
+  return'card_'+name+'_'+_hashStr(fingerprint);
 }
 
 function getReactions(cardId){
@@ -2698,20 +2922,25 @@ function sendComment(cardId){
   const nameInp=document.getElementById('cname-'+cardId);
   const emailInp=document.getElementById('cemail-'+cardId);
   if(!inp)return;
-  const raw=inp.value.trim();
+  const raw=inp.value.trim().slice(0,200);
   if(!raw){showToast('Tulis komentar dulu ya!',true);inp.focus();return;}
+  if(raw.length<2){showToast('Komentar terlalu pendek.',true);inp.focus();return;}
   if(!_canComment(cardId))return;
   /* ── Filter konten tidak sopan ── */
   if(_containsBannedWord(raw)){
     showToast('⚠️ Komentar mengandung kata yang tidak sopan. Mohon gunakan bahasa yang santun.',true);
     inp.focus();return;
   }
-  const commenterName=(nameInp&&nameInp.value.trim())||'Anonim';
+  const commenterName=((nameInp&&nameInp.value.trim())||'Anonim').slice(0,60);
   if(_containsBannedWord(commenterName)){
     showToast('⚠️ Nama mengandung kata yang tidak pantas.',true);
     if(nameInp)nameInp.focus();return;
   }
   const commenterEmail=(emailInp&&emailInp.value.trim())||'';
+  if(commenterEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(commenterEmail)){
+    showToast('⚠️ Format email tidak valid.',true);
+    if(emailInp)emailInp.focus();return;
+  }
   const cmts=getComments(cardId);
   const now=new Date();
   const timeStr=now.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' '+now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
