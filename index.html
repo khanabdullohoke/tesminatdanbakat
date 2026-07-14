@@ -2168,12 +2168,25 @@ function renderData(d,source){
   } else {
     document.getElementById('bar-chart-jurusan').innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">Belum ada data jurusan.</div>';
   }
-  if(d.total>0){updateDonut(d);updateRadarChart(d);}
-  if((d.bakatMenonjol&&Object.keys(d.bakatMenonjol).length>0)||(d.areaPengembangan&&Object.keys(d.areaPengembangan).length>0)){
-    updateBakatArea(d.bakatMenonjol||{},d.areaPengembangan||{});
-  } else {
-    updateBakatAreaFallback();
-  }
+  /* ── BUG LAMA: donut/radar/tabel bakat cuma di-update kalau d.total>0
+     atau kategorinya tidak kosong. Akibatnya, begitu backend live
+     menjawab dgn data JUJUR "belum ada siswa mengisi" (total:0,
+     bakatMenonjol:{}, areaPengembangan:{}) — kondisi normal untuk sistem
+     yang baru dipasang — bagian2 ini diam2 TETAP menampilkan angka
+     contoh/fallback lama (312/198/146...), sedangkan kartu angka besar
+     di atasnya sudah benar menampilkan 0. Hasilnya tampilan campur aduk
+     yang terlihat seperti "tidak terhubung ke data asli", padahal
+     sebenarnya sudah terhubung — datanya memang masih kosong.
+     Diperbaiki: begitu ada respons live/cache (artinya kita punya bentuk
+     data ASLI dari backend, walau isinya kosong), selalu render dari
+     data itu apa adanya — donut jadi 0%, radar kolaps ke tengah, dan
+     tabel bakat/area menampilkan status jujur "Belum ada data" (sudah
+     didukung buildRankTable). Fallback dgn angka CONTOH (dummy) HANYA
+     dipakai saat live fetch benar2 GAGAL/timeout & tidak ada cache sama
+     sekali — lihat loadFallbackData(). ── */
+  updateDonut(d);
+  updateRadarChart(d);
+  updateBakatArea(d.bakatMenonjol||{},d.areaPengembangan||{});
   const allStories=(d.stories||[]).filter(s=>s&&s.nama&&s.pesan&&s.pesan.trim().length>0);
   if(allStories.length>0){updateStories(allStories);}
   else{document.getElementById('stories-grid').innerHTML='<div class="stories-empty" style="grid-column:1/-1">Belum ada siswa yang berbagi kisah. <button class="btn-gold" onclick="showPage(\'form\')" style="margin-left:10px;font-size:11.5px;padding:6px 14px">Jadilah yang pertama!</button></div>';}
@@ -2205,8 +2218,18 @@ async function loadBakatData(forceRefresh=false){
 
   const ctrl=new AbortController();
   _loadingController=ctrl;
-  const timeoutId=setTimeout(()=>{try{ctrl.abort();}catch(_){}},8000);
-  const url=APPS_SCRIPT_URL+(forceRefresh?'?t='+Date.now():'');
+  /* ── Timeout dinaikkan dari 8s → 20s: Google Apps Script (terutama saat
+     "cold start" atau sheet sudah besar) kerap butuh waktu >8 detik untuk
+     merespons. Dengan batas lama, halaman keburu "menyerah" dan diam-diam
+     kembali ke data contoh (fallback) walau sebenarnya data live cuma
+     lambat, bukan gagal — ini yang membuat dashboard terlihat "tidak
+     pernah update" padahal backend baik-baik saja. ── */
+  const timeoutId=setTimeout(()=>{try{ctrl.abort();}catch(_){}},20000);
+  /* ── Cache-bust SELALU disertakan (bukan cuma saat forceRefresh), supaya
+     browser/proxy tidak pernah menyajikan respons GET yang basi untuk
+     endpoint ini — hanya cache di sisi Apps Script (CacheService, lihat
+     Code.gs) yang menentukan seberapa "segar" datanya. ── */
+  const url=APPS_SCRIPT_URL+'?t='+Date.now();
   try{
     const res=await fetch(url,{signal:ctrl.signal,cache:'no-store'});
     if(!res.ok)throw new Error('HTTP '+res.status);
