@@ -284,10 +284,29 @@ img,svg{display:block}
 .radar-spoke{stroke:#e3f2fd;stroke-width:1}
 #radar-polygon{transition:opacity .4s ease}
 
+/* ── PROFIL KOMPETENSI — kartu tunggal elegan (menggantikan donut yang
+   duplikat dgn 4 kartu kategori di atasnya) ── */
+.profile-card{
+  position:relative;overflow:hidden;
+  border:1px solid rgba(30,136,229,.12);
+  background:linear-gradient(180deg,#fff 0%,var(--cream) 100%);
+}
+.profile-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue-bright),var(--gold));
+}
+.profile-wrap{gap:34px;padding:4px 4px 0}
+.profile-legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 26px;flex:1;min-width:260px}
+@media(max-width:560px){.profile-legend-grid{grid-template-columns:1fr}}
+
 /* ── PETA BAKAT CARD ── */
 .map-card{background:var(--cream);border-radius:var(--radius);padding:24px;border:1px solid rgba(30,136,229,.1)}
 .map-card-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px}
 .rank-tables-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rank-tables-wrap.single{grid-template-columns:1fr;max-width:640px;margin:0 auto}
+.rank-tables-wrap.single .rank-table{font-size:12.5px}
+.rank-tables-wrap.single .rank-table thead th{padding:9px 12px;font-size:10.5px}
+.rank-tables-wrap.single .rank-table tbody td{padding:10px 12px}
 .rank-table-section{}
 .rank-table-title{
   font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;
@@ -962,125 +981,76 @@ img,svg{display:block}
           <div style="color:var(--text-muted);font-size:13px;padding:18px 0;text-align:center">⏳ Memuat data program keahlian...</div>
         </div>
       </div>
-      <div class="charts-row reveal">
-        <div class="chart-box">
-          <h3>Kategori Bakat Dominan</h3>
-          <div class="donut-wrap">
-            <svg width="152" height="152" viewBox="0 0 160 160" style="flex-shrink:0" role="img" aria-label="Donut chart kategori bakat">
-              <circle cx="80" cy="80" r="60" fill="none" stroke="#e3f2fd" stroke-width="26"/>
-              <circle id="donut-teknikal" cx="80" cy="80" r="60" fill="none" stroke="var(--blue-bright)" stroke-width="26" stroke-dasharray="0 376.99" stroke-dashoffset="0" transform="rotate(-90 80 80)" style="transition:stroke-dasharray 1s ease"/>
-              <circle id="donut-kreatif" cx="80" cy="80" r="60" fill="none" stroke="#7b1fa2" stroke-width="26" stroke-dasharray="0 376.99" stroke-dashoffset="0" transform="rotate(-90 80 80)" style="transition:stroke-dasharray 1s ease .2s,stroke-dashoffset 1s ease .2s"/>
-              <circle id="donut-bisnis" cx="80" cy="80" r="60" fill="none" stroke="#e65100" stroke-width="26" stroke-dasharray="0 376.99" stroke-dashoffset="0" transform="rotate(-90 80 80)" style="transition:stroke-dasharray 1s ease .4s,stroke-dashoffset 1s ease .4s"/>
-              <circle id="donut-sosial" cx="80" cy="80" r="60" fill="none" stroke="var(--green)" stroke-width="26" stroke-dasharray="0 376.99" stroke-dashoffset="0" transform="rotate(-90 80 80)" style="transition:stroke-dasharray 1s ease .6s,stroke-dashoffset 1s ease .6s"/>
-              <text id="donut-center" x="80" y="75" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="19" font-weight="900" fill="var(--blue-deep)">–</text>
-              <text x="80" y="93" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9.5" fill="#607d9e">Terpetakan</text>
-            </svg>
-            <div class="donut-legend">
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:var(--blue-bright)"></div><span class="legend-label">Teknikal</span><span id="legend-teknikal" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="legendbar-teknikal" style="background:var(--blue-bright)"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#7b1fa2"></div><span class="legend-label">Kreatif</span><span id="legend-kreatif" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="legendbar-kreatif" style="background:#7b1fa2"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#e65100"></div><span class="legend-label">Bisnis</span><span id="legend-bisnis" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="legendbar-bisnis" style="background:#e65100"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:var(--green)"></div><span class="legend-label">Sosial &amp; Analitis</span><span id="legend-sosial" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="legendbar-sosial" style="background:var(--green)"></div></div>
-              </div>
+      <div class="chart-box profile-card reveal" style="margin-bottom:20px">
+        <h3>Profil Kompetensi <span style="font-weight:600;color:var(--text-muted);font-size:11px">(Jaring Laba-laba · Kode Holland)</span></h3>
+        <div class="donut-wrap profile-wrap">
+          <svg width="196" height="196" viewBox="0 0 200 200" style="flex-shrink:0" role="img" aria-label="Diagram jaring laba-laba profil kompetensi RIASEC (Kode Holland) siswa">
+            <polygon class="radar-grid-ring" points="100,40 151.96,70 151.96,130 100,160 48.04,130 48.04,70"/>
+            <polygon class="radar-grid-ring" points="100,55 138.97,77.5 138.97,122.5 100,145 61.03,122.5 61.03,77.5"/>
+            <polygon class="radar-grid-ring" points="100,70 125.98,85 125.98,115 100,130 74.02,115 74.02,85"/>
+            <polygon class="radar-grid-ring" points="100,85 112.99,92.5 112.99,107.5 100,115 87.01,107.5 87.01,92.5"/>
+            <line class="radar-spoke" x1="100" y1="100" x2="100" y2="40"/>
+            <line class="radar-spoke" x1="100" y1="100" x2="151.96" y2="70"/>
+            <line class="radar-spoke" x1="100" y1="100" x2="151.96" y2="130"/>
+            <line class="radar-spoke" x1="100" y1="100" x2="100" y2="160"/>
+            <line class="radar-spoke" x1="100" y1="100" x2="48.04" y2="130"/>
+            <line class="radar-spoke" x1="100" y1="100" x2="48.04" y2="70"/>
+            <polygon id="radar-polygon" points="100,100 100,100 100,100 100,100 100,100 100,100" fill="rgba(21,101,192,.16)" stroke="var(--blue-bright)" stroke-width="2" stroke-linejoin="round"/>
+            <circle id="radar-dot-r" cx="100" cy="100" r="3.5" fill="#1e88e5"/>
+            <circle id="radar-dot-i" cx="100" cy="100" r="3.5" fill="#0097a7"/>
+            <circle id="radar-dot-a" cx="100" cy="100" r="3.5" fill="#7b1fa2"/>
+            <circle id="radar-dot-s" cx="100" cy="100" r="3.5" fill="var(--green)"/>
+            <circle id="radar-dot-e" cx="100" cy="100" r="3.5" fill="#e65100"/>
+            <circle id="radar-dot-c" cx="100" cy="100" r="3.5" fill="#ad1457"/>
+            <text x="100" y="24" text-anchor="middle" font-size="13">🔧</text>
+            <text x="168" y="63" text-anchor="middle" font-size="13">🔍</text>
+            <text x="168" y="142" text-anchor="middle" font-size="13">🎨</text>
+            <text x="100" y="180" text-anchor="middle" font-size="13">🗣️</text>
+            <text x="32" y="142" text-anchor="middle" font-size="13">🚀</text>
+            <text x="32" y="63" text-anchor="middle" font-size="13">📋</text>
+          </svg>
+          <div class="donut-legend profile-legend-grid">
+            <div class="legend-item">
+              <div class="legend-item-top"><div class="legend-dot" style="background:#1e88e5"></div><span class="legend-label">R · Realistik/Teknikal</span><span id="radarlegend-r" class="legend-pct">–</span></div>
+              <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-r" style="background:#1e88e5"></div></div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-item-top"><div class="legend-dot" style="background:#0097a7"></div><span class="legend-label">I · Investigatif/Analitis</span><span id="radarlegend-i" class="legend-pct">–</span></div>
+              <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-i" style="background:#0097a7"></div></div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-item-top"><div class="legend-dot" style="background:#7b1fa2"></div><span class="legend-label">A · Artistik/Kreatif</span><span id="radarlegend-a" class="legend-pct">–</span></div>
+              <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-a" style="background:#7b1fa2"></div></div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-item-top"><div class="legend-dot" style="background:var(--green)"></div><span class="legend-label">S · Sosial/Komunikatif</span><span id="radarlegend-s" class="legend-pct">–</span></div>
+              <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-s" style="background:var(--green)"></div></div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-item-top"><div class="legend-dot" style="background:#e65100"></div><span class="legend-label">E · Enterprising/Bisnis</span><span id="radarlegend-e" class="legend-pct">–</span></div>
+              <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-e" style="background:#e65100"></div></div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-item-top"><div class="legend-dot" style="background:#ad1457"></div><span class="legend-label">C · Konvensional/Terorganisir</span><span id="radarlegend-c" class="legend-pct">–</span></div>
+              <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-c" style="background:#ad1457"></div></div>
             </div>
           </div>
         </div>
-        <div class="chart-box">
-          <h3>Profil Kompetensi <span style="font-weight:600;color:var(--text-muted);font-size:11px">(Jaring Laba-laba · Kode Holland)</span></h3>
-          <div class="donut-wrap">
-            <svg width="152" height="152" viewBox="0 0 200 200" style="flex-shrink:0" role="img" aria-label="Diagram jaring laba-laba profil kompetensi RIASEC (Kode Holland) siswa">
-              <polygon class="radar-grid-ring" points="100,40 151.96,70 151.96,130 100,160 48.04,130 48.04,70"/>
-              <polygon class="radar-grid-ring" points="100,55 138.97,77.5 138.97,122.5 100,145 61.03,122.5 61.03,77.5"/>
-              <polygon class="radar-grid-ring" points="100,70 125.98,85 125.98,115 100,130 74.02,115 74.02,85"/>
-              <polygon class="radar-grid-ring" points="100,85 112.99,92.5 112.99,107.5 100,115 87.01,107.5 87.01,92.5"/>
-              <line class="radar-spoke" x1="100" y1="100" x2="100" y2="40"/>
-              <line class="radar-spoke" x1="100" y1="100" x2="151.96" y2="70"/>
-              <line class="radar-spoke" x1="100" y1="100" x2="151.96" y2="130"/>
-              <line class="radar-spoke" x1="100" y1="100" x2="100" y2="160"/>
-              <line class="radar-spoke" x1="100" y1="100" x2="48.04" y2="130"/>
-              <line class="radar-spoke" x1="100" y1="100" x2="48.04" y2="70"/>
-              <polygon id="radar-polygon" points="100,100 100,100 100,100 100,100 100,100 100,100" fill="rgba(21,101,192,.16)" stroke="var(--blue-bright)" stroke-width="2" stroke-linejoin="round"/>
-              <circle id="radar-dot-r" cx="100" cy="100" r="3.5" fill="#1e88e5"/>
-              <circle id="radar-dot-i" cx="100" cy="100" r="3.5" fill="#0097a7"/>
-              <circle id="radar-dot-a" cx="100" cy="100" r="3.5" fill="#7b1fa2"/>
-              <circle id="radar-dot-s" cx="100" cy="100" r="3.5" fill="var(--green)"/>
-              <circle id="radar-dot-e" cx="100" cy="100" r="3.5" fill="#e65100"/>
-              <circle id="radar-dot-c" cx="100" cy="100" r="3.5" fill="#ad1457"/>
-              <text x="100" y="24" text-anchor="middle" font-size="13">🔧</text>
-              <text x="168" y="63" text-anchor="middle" font-size="13">🔍</text>
-              <text x="168" y="142" text-anchor="middle" font-size="13">🎨</text>
-              <text x="100" y="180" text-anchor="middle" font-size="13">🗣️</text>
-              <text x="32" y="142" text-anchor="middle" font-size="13">🚀</text>
-              <text x="32" y="63" text-anchor="middle" font-size="13">📋</text>
-            </svg>
-            <div class="donut-legend">
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#1e88e5"></div><span class="legend-label">R · Realistik/Teknikal</span><span id="radarlegend-r" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-r" style="background:#1e88e5"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#0097a7"></div><span class="legend-label">I · Investigatif/Analitis</span><span id="radarlegend-i" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-i" style="background:#0097a7"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#7b1fa2"></div><span class="legend-label">A · Artistik/Kreatif</span><span id="radarlegend-a" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-a" style="background:#7b1fa2"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:var(--green)"></div><span class="legend-label">S · Sosial/Komunikatif</span><span id="radarlegend-s" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-s" style="background:var(--green)"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#e65100"></div><span class="legend-label">E · Enterprising/Bisnis</span><span id="radarlegend-e" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-e" style="background:#e65100"></div></div>
-              </div>
-              <div class="legend-item">
-                <div class="legend-item-top"><div class="legend-dot" style="background:#ad1457"></div><span class="legend-label">C · Konvensional/Terorganisir</span><span id="radarlegend-c" class="legend-pct">–</span></div>
-                <div class="legend-bar-track"><div class="legend-bar-fill" id="radarlegendbar-c" style="background:#ad1457"></div></div>
-              </div>
-            </div>
-          </div>
-          <div id="radar-dominant-note" style="display:none;font-size:11px;color:var(--text-mid);margin-top:10px;line-height:1.5;padding-top:10px;border-top:1px dashed rgba(30,136,229,.15)"></div>
-          <div id="radar-estimate-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">⚠️ Data skor rata-rata per kategori R/I/A/S/E/C belum tersedia dari backend saat ini, jadi 6 sumbu di atas masih <strong>estimasi</strong> dari data klaster (Teknikal/Kreatif/Bisnis/Sosial gabungan). Grafik akan otomatis akurat begitu field <code>avgRiasec</code> tersedia dari backend.</div>
-        </div>
+        <div id="radar-dominant-note" style="display:none;font-size:11px;color:var(--text-mid);margin-top:14px;line-height:1.5;padding-top:12px;border-top:1px dashed rgba(30,136,229,.15)"></div>
+        <div id="radar-estimate-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">⚠️ Data skor rata-rata per kategori R/I/A/S/E/C belum tersedia dari backend saat ini, jadi 6 sumbu di atas masih <strong>estimasi</strong> dari data klaster (Teknikal/Kreatif/Bisnis/Sosial gabungan). Grafik akan otomatis akurat begitu field <code>avgRiasec</code> tersedia dari backend.</div>
       </div>
 
-      <!-- PETA BAKAT — Tabel Bakat Menonjol & Area Perlu Diasah -->
+      <!-- PETA BAKAT — Tabel Area Perlu Diasah -->
       <div class="map-card reveal" id="bakat-card">
         <div class="map-card-header">
           <div>
             <div class="section-label" style="margin-bottom:5px">Peta Potensi</div>
-            <h3 class="section-title" style="font-size:19px">Bakat Menonjol <em>&amp; Area Pengembangan</em></h3>
+            <h3 class="section-title" style="font-size:19px">Area yang Perlu <em>Diasah</em></h3>
           </div>
-          <span id="peta-badge" style="font-size:11.5px;color:var(--text-muted);background:var(--blue-pale);padding:5px 13px;border-radius:50px;font-weight:600">🧭 Memuat...</span>
+          <span id="peta-badge" style="font-size:11.5px;color:var(--text-muted);background:var(--blue-pale);padding:5px 13px;border-radius:50px;font-weight:600">🎯 Memuat...</span>
         </div>
-        <div class="rank-tables-wrap">
-          <!-- Tabel Bakat Menonjol -->
+        <div class="rank-tables-wrap single">
           <div class="rank-table-section">
-            <div class="rank-table-title">
-              <span class="rtitle-icon">⭐</span> Bakat Paling Menonjol
-              <span class="rtitle-badge" id="badge-bakat">–</span>
-            </div>
-            <div id="tabel-bakat-menonjol">
-              <div class="rank-empty">⏳ Memuat data bakat menonjol...</div>
-            </div>
-          </div>
-          <!-- Tabel Area Perlu Diasah -->
-          <div class="rank-table-section">
-            <div class="rank-table-title">
-              <span class="rtitle-icon">🎯</span> Area yang Perlu Diasah
-              <span class="rtitle-badge" id="badge-area" style="background:#fff8e1;color:#e65100">–</span>
-            </div>
             <div id="tabel-area-pengembangan">
               <div class="rank-empty">⏳ Memuat data area pengembangan...</div>
             </div>
@@ -2184,7 +2154,6 @@ function renderData(d,source){
      didukung buildRankTable). Fallback dgn angka CONTOH (dummy) HANYA
      dipakai saat live fetch benar2 GAGAL/timeout & tidak ada cache sama
      sekali — lihat loadFallbackData(). ── */
-  updateDonut(d);
   updateRadarChart(d);
   updateBakatArea(d.bakatMenonjol||{},d.areaPengembangan||{});
   const allStories=(d.stories||[]).filter(s=>s&&s.nama&&s.pesan&&s.pesan.trim().length>0);
@@ -2272,7 +2241,6 @@ function loadFallbackData(){
   updateInsightBanner(fallbackCats);
   updateJurusanKategoriList(fallbackCats);
   updateBarChart(fallbackJurusan);
-  updateDonut(fallbackCats);
   updateRadarChart(fallbackCats);
   updateBakatAreaFallback();
 }
@@ -2312,35 +2280,11 @@ function updateBarChart(jurusanData){
   });
 }
 
-function updateDonut(d){
-  const circ=2*Math.PI*60;
-  const total=((d.teknikal||0)+(d.kreatif||0)+(d.bisnis||0)+(d.sosial||0))||1;
-  let offset=0;
-  function setSlice(id,count){
-    const el=document.getElementById(id);
-    if(!el)return;
-    const len=(count/total)*circ;
-    el.style.strokeDasharray=`${len} ${circ}`;
-    el.style.strokeDashoffset=`-${offset}`;
-    offset+=len;
-  }
-  setSlice('donut-teknikal',d.teknikal||0);
-  setSlice('donut-kreatif',d.kreatif||0);
-  setSlice('donut-bisnis',d.bisnis||0);
-  setSlice('donut-sosial',d.sosial||0);
-  const pct=v=>((v/total)*100).toFixed(1)+'%';
-  [['legend-teknikal','legendbar-teknikal',d.teknikal||0],['legend-kreatif','legendbar-kreatif',d.kreatif||0],['legend-bisnis','legendbar-bisnis',d.bisnis||0],['legend-sosial','legendbar-sosial',d.sosial||0]].forEach(([id,barId,v])=>{
-    const el=document.getElementById(id);if(el)el.textContent=pct(v);
-    const bar=document.getElementById(barId);if(bar)bar.style.width=((v/total)*100)+'%';
-  });
-  const dc=document.getElementById('donut-center');
-  if(dc){
-    /* Angka di tengah donut = % responden yang sudah punya kategori
-       bakat RIASEC lengkap (computeTerpetakanPct) — metrik kelengkapan
-       data kategori klaster (teknikal/kreatif/bisnis/sosial). */
-    dc.textContent=computeTerpetakanPct(d)+'%';
-  }
-}
+/* ── updateDonut() dihapus: donut "Kategori Bakat Dominan" duplikat
+   persis dengan 4 kartu kategori (Teknikal/Kreatif/Bisnis/Sosial) di
+   atasnya — sama-sama menampilkan jumlah & persentase per klaster,
+   cuma beda bentuk visual. Kartu dipertahankan karena lebih informatif
+   (ada badge "Terbanyak" & jurusan pendominasi), donut dibuang. ── */
 
 /* ── RADAR / JARING LABA-LABA — profil kompetensi 6 kategori RIASEC
    (Kode Holland: R/I/A/S/E/C), menggantikan versi lama yang cuma 4
@@ -2522,46 +2466,26 @@ function buildRankTable(data, maxRow, isArea){
 
 function updateBakatArea(bakatData,areaData){
   const badge=document.getElementById('peta-badge');
-  const badgeBakat=document.getElementById('badge-bakat');
-  const badgeArea=document.getElementById('badge-area');
-  const tblBakat=document.getElementById('tabel-bakat-menonjol');
   const tblArea=document.getElementById('tabel-area-pengembangan');
 
-  const bakatSorted=Object.entries(bakatData).sort((a,b)=>b[1]-a[1]);
   const areaSorted=Object.entries(areaData).sort((a,b)=>b[1]-a[1]);
-
-  const totalBakat=bakatSorted.reduce((s,[,v])=>s+(parseInt(v)||0),0);
   const totalArea=areaSorted.reduce((s,[,v])=>s+(parseInt(v)||0),0);
 
-  if(badge)badge.textContent=`🧭 ${bakatSorted.length} kategori bakat · ${areaSorted.length} area pengembangan`;
-  if(badgeBakat)badgeBakat.textContent=`${bakatSorted.length} kategori · ${totalBakat} siswa`;
-  if(badgeArea)badgeArea.textContent=`${areaSorted.length} area · ${totalArea} siswa`;
-
-  if(tblBakat)tblBakat.innerHTML=buildRankTable(bakatSorted,8,false);
+  if(badge)badge.textContent=`🎯 ${areaSorted.length} area · ${totalArea} siswa`;
   if(tblArea)tblArea.innerHTML=buildRankTable(areaSorted,8,true);
 }
 
 function updateBakatAreaFallback(){
   const badge=document.getElementById('peta-badge');
-  const badgeBakat=document.getElementById('badge-bakat');
-  const badgeArea=document.getElementById('badge-area');
-  const tblBakat=document.getElementById('tabel-bakat-menonjol');
   const tblArea=document.getElementById('tabel-area-pengembangan');
 
-  if(badge)badge.textContent='🧭 Data Estimasi';
-  if(badgeBakat)badgeBakat.textContent='6 kategori · 842 siswa';
-  if(badgeArea)badgeArea.textContent='9 area · 842 siswa';
+  if(badge)badge.textContent='🎯 Data Estimasi';
 
-  const fallbackBakat=[
-    ['Realistik/Teknikal',312],['Artistik/Kreatif',198],['Sosial/Komunikatif',150],
-    ['Enterprising/Bisnis',146],['Investigatif/Analitis',110],['Konvensional/Terorganisir',60],
-  ];
   const fallbackArea=[
     ['Kepercayaan Diri',210],['Kemampuan Komunikasi',175],['Bahasa Inggris',140],
     ['Kedisiplinan & Manajemen Waktu',120],['Public Speaking',98],['Kreativitas & Inovasi',99],
   ];
 
-  if(tblBakat)tblBakat.innerHTML=buildRankTable(fallbackBakat,8,false);
   if(tblArea)tblArea.innerHTML=buildRankTable(fallbackArea,8,true);
 }
 
